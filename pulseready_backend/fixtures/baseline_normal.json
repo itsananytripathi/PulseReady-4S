@@ -1,0 +1,9 @@
+{
+  "records": [
+    {"facility_code": "A-01", "signal_type": "occupancy", "observed_at": "2026-10-23T10:00:00Z", "value": 50, "unit": "count", "source": "fixture:baseline_normal"},
+    {"facility_code": "A-01", "signal_type": "occupancy", "observed_at": "2026-10-23T10:01:00Z", "value": 51, "unit": "count", "source": "fixture:baseline_normal"},
+    {"facility_code": "A-01", "signal_type": "occupancy", "observed_at": "2026-10-23T10:02:00Z", "value": 49, "unit": "count", "source": "fixture:baseline_normal"},
+    {"facility_code": "A-01", "signal_type": "occupancy", "observed_at": "2026-10-23T10:03:00Z", "value": 50, "unit": "count", "source": "fixture:baseline_normal"},
+    {"facility_code": "A-01", "signal_type": "occupancy", "observed_at": "2026-10-23T10:04:00Z", "value": 50, "unit": "count", "source": "fixture:baseline_normal"}
+  ]
+}

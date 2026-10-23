@@ -1,0 +1,6 @@
+facility_code,signal_type,observed_at,value,unit,source
+DEMO-HOSP-01,respiratory_symptom_reports,2026-10-21T09:00:00Z,5,count,synthetic
+DEMO-HOSP-01,respiratory_symptom_reports,2026-10-21T10:00:00Z,6,count,synthetic
+DEMO-HOSP-01,respiratory_symptom_reports,2026-10-21T11:00:00Z,5,count,synthetic
+DEMO-HOSP-01,respiratory_symptom_reports,2026-10-21T12:00:00Z,7,count,synthetic
+DEMO-HOSP-01,respiratory_symptom_reports,2026-10-21T13:00:00Z,6,count,synthetic

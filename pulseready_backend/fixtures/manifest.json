@@ -1,0 +1,68 @@
+{
+  "fixture_schema_version": "1.0",
+  "synthetic_data": true,
+  "as_of": "2026-10-23T12:00:00Z",
+  "freshness_window_hours": 72,
+  "scenarios": [
+    {
+      "scenario_id": "baseline_normal",
+      "description": "Stable occupancy telemetry with no unusual deviation.",
+      "filename": "baseline_normal.json",
+      "synthetic": true,
+      "stress_dimensions": [],
+      "expected_observable_behavior": {"accepted_rows": 5, "rejected_rows": 0, "alerts_created": 0, "readiness_effect": "static facility readiness remains unchanged"},
+      "clock_assumptions": "Fresh when evaluated with as_of 2026-10-23T12:00:00Z.",
+      "prerequisite": "Provision fixture tenant and A-01 facility."
+    },
+    {
+      "scenario_id": "staffing_shortage",
+      "description": "Stable staffing telemetry followed by a large drop.",
+      "filename": "staffing_shortage.json",
+      "synthetic": true,
+      "stress_dimensions": ["staffing"],
+      "expected_observable_behavior": {"accepted_rows": 8, "rejected_rows": 0, "alerts_created": 1, "alert_severity": "review", "readiness_effect": "no dynamic staffing-to-readiness mapping exists"},
+      "clock_assumptions": "Fresh when evaluated with as_of 2026-10-23T12:00:00Z.",
+      "prerequisite": "Provision fixture tenant and A-01 facility."
+    },
+    {
+      "scenario_id": "supply_buffer_low",
+      "description": "Stable supply-risk telemetry followed by a positive supply-risk deviation.",
+      "filename": "supply_buffer_low.json",
+      "synthetic": true,
+      "stress_dimensions": ["supply"],
+      "expected_observable_behavior": {"accepted_rows": 8, "rejected_rows": 0, "alerts_created": 1, "alert_severity": "review", "readiness_effect": "overview supply buffer reads the static facility fields"},
+      "clock_assumptions": "Fresh when evaluated with as_of 2026-10-23T12:00:00Z.",
+      "prerequisite": "Provision fixture tenant and A-01 facility."
+    },
+    {
+      "scenario_id": "bed_surge",
+      "description": "Stable demand telemetry followed by a high bed-demand observation.",
+      "filename": "bed_surge.json",
+      "synthetic": true,
+      "stress_dimensions": ["bed_demand"],
+      "expected_observable_behavior": {"accepted_rows": 8, "rejected_rows": 0, "alerts_created": 1, "alert_severity": "review", "readiness_effect": "simulation is the supported capacity what-if path; no telemetry-to-space mapping exists"},
+      "clock_assumptions": "Fresh when evaluated with as_of 2026-10-23T12:00:00Z.",
+      "prerequisite": "Provision fixture tenant and A-01 facility."
+    },
+    {
+      "scenario_id": "stale_telemetry",
+      "description": "A telemetry record outside the configured freshness window.",
+      "filename": "stale_telemetry.json",
+      "synthetic": true,
+      "stress_dimensions": ["freshness"],
+      "expected_observable_behavior": {"accepted_rows": 0, "rejected_rows": 1, "alerts_created": 0, "rejection_reason_contains": "allowed freshness"},
+      "clock_assumptions": "Rejected at as_of 2026-10-23T12:00:00Z because the record is 96 hours old.",
+      "prerequisite": "Provision fixture tenant and A-01 facility."
+    },
+    {
+      "scenario_id": "combined_stress",
+      "description": "Independent staffing and supply deviations in one ingestion request.",
+      "filename": "combined_stress.json",
+      "synthetic": true,
+      "stress_dimensions": ["staffing", "supply"],
+      "expected_observable_behavior": {"accepted_rows": 16, "rejected_rows": 0, "alerts_created": 2, "alert_severity": "review", "readiness_effect": "both alerts are anomaly outputs; static 4S fields are not overwritten"},
+      "clock_assumptions": "Fresh when evaluated with as_of 2026-10-23T12:00:00Z.",
+      "prerequisite": "Provision fixture tenant and A-01 facility."
+    }
+  ]
+}

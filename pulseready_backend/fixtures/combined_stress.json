@@ -1,0 +1,20 @@
+{
+  "records": [
+    {"facility_code": "A-01", "signal_type": "staff_shortage", "observed_at": "2026-10-23T10:40:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "staff_shortage", "observed_at": "2026-10-23T10:41:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "staff_shortage", "observed_at": "2026-10-23T10:42:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "staff_shortage", "observed_at": "2026-10-23T10:43:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "staff_shortage", "observed_at": "2026-10-23T10:44:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "staff_shortage", "observed_at": "2026-10-23T10:45:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "staff_shortage", "observed_at": "2026-10-23T10:46:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "staff_shortage", "observed_at": "2026-10-23T10:47:00Z", "value": 10, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "supply_risk", "observed_at": "2026-10-23T10:50:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "supply_risk", "observed_at": "2026-10-23T10:51:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "supply_risk", "observed_at": "2026-10-23T10:52:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "supply_risk", "observed_at": "2026-10-23T10:53:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "supply_risk", "observed_at": "2026-10-23T10:54:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "supply_risk", "observed_at": "2026-10-23T10:55:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "supply_risk", "observed_at": "2026-10-23T10:56:00Z", "value": 0, "unit": "count", "source": "fixture:combined_stress"},
+    {"facility_code": "A-01", "signal_type": "supply_risk", "observed_at": "2026-10-23T10:57:00Z", "value": 100, "unit": "count", "source": "fixture:combined_stress"}
+  ]
+}

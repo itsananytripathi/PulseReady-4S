@@ -116,6 +116,9 @@ class Settings:
     browser_use_endpoint: str | None = None
     flutterflow_api_key: str | None = None
     flutterflow_endpoint: str | None = None
+    danphe_enabled: bool = False
+    danphe_connection_string: str | None = None
+    danphe_approved_view: str | None = None
 
 def get_settings() -> Settings:
     raw = os.getenv("PULSEREADY_API_KEYS", '{"demo-key-change-me":"11111111-1111-4111-8111-111111111111"}')
@@ -155,6 +158,9 @@ def get_settings() -> Settings:
         browser_use_endpoint=optional_env("BROWSER_USE_ENDPOINT"),
         flutterflow_api_key=optional_env("FLUTTERFLOW_API_KEY"),
         flutterflow_endpoint=optional_env("FLUTTERFLOW_ENDPOINT"),
+        danphe_enabled=parse_bool(os.getenv("DANPHE_ENABLED")),
+        danphe_connection_string=optional_env("DANPHE_CONNECTION_STRING"),
+        danphe_approved_view=optional_env("DANPHE_APPROVED_VIEW"),
     )
 
 settings = get_settings()

@@ -1,0 +1,21 @@
+import { useState } from 'react'
+import { useAlertReview, useOverview } from '../../hooks/useApiQueries'
+import type { AlertReviewRequest, ReviewDecision } from '../../lib/api/contracts'
+import { ErrorState, EmptyState, LoadingState } from '../../components/feedback/States'
+import { safeErrorMessage } from '../../lib/api/errors'
+
+export function AlertsPage() {
+  const overview = useOverview()
+  const review = useAlertReview()
+  const [form, setForm] = useState<Record<string, AlertReviewRequest>>({})
+  const update = (id: string, patch: Partial<AlertReviewRequest>) => setForm((current) => {
+    const existing = current[id]
+    return { ...current, [id]: {
+      decision: patch.decision ?? existing?.decision ?? 'acknowledged',
+      note: patch.note ?? existing?.note ?? '',
+      officer_id: patch.officer_id ?? existing?.officer_id ?? '',
+    } }
+  })
+  const submit = (alertId: string) => { const payload = form[alertId]; if (!payload?.officer_id.trim()) return; review.mutate({ alertId, payload }) }
+  return <div className="space-y-6"><div><p className="text-sm font-semibold uppercase tracking-wider text-teal">Human review</p><h1 className="mt-1 text-3xl font-bold tracking-tight text-ink">Alerts & evidence</h1><p className="mt-2 text-sm text-slate-600">Review decisions are submitted to the backend and only displayed as complete after confirmation.</p></div>{overview.isLoading && <LoadingState />}{overview.isError && <ErrorState error={overview.error} retry={() => void overview.refetch()} />}{review.isError && <ErrorState error={review.error} />}{overview.data && (overview.data.active_alerts.length === 0 ? <EmptyState title="No active alerts" detail="No open alerts were returned by the authenticated tenant scope." /> : <div className="space-y-4">{overview.data.active_alerts.map((alert) => { const values = form[alert.id] || { decision: 'acknowledged' as ReviewDecision, note: '', officer_id: '' }; return <article key={alert.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-panel"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-wider text-amber-700">{alert.severity} · {alert.facility_code}</p><h2 className="mt-1 text-lg font-semibold text-ink">{alert.title}</h2><p className="mt-1 text-xs text-slate-500">{new Date(alert.created_at).toLocaleString()} · ID {alert.id}</p></div><span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">{alert.status}</span></div><p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-700">{alert.explanation}</p><div className="mt-5 grid gap-3 md:grid-cols-[150px_1fr_180px_auto] md:items-end"><label className="text-sm font-medium text-slate-700">Decision<select aria-label={`Decision for ${alert.title}`} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2" value={values.decision} onChange={(event) => update(alert.id, { decision: event.target.value as ReviewDecision })}><option value="acknowledged">Acknowledged</option><option value="dismissed">Dismissed</option><option value="escalated">Escalated</option></select></label><label className="text-sm font-medium text-slate-700">Review note<textarea aria-label={`Note for ${alert.title}`} className="mt-1 min-h-10 w-full rounded-lg border border-slate-300 px-3 py-2" value={values.note} onChange={(event) => update(alert.id, { note: event.target.value })} /></label><label className="text-sm font-medium text-slate-700">Officer ID<input aria-label={`Officer ID for ${alert.title}`} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={values.officer_id} onChange={(event) => update(alert.id, { officer_id: event.target.value })} /></label><button className="rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50" disabled={review.isPending || !values.officer_id.trim()} onClick={() => submit(alert.id)}>{review.isPending ? 'Submitting…' : 'Submit review'}</button></div>{review.isSuccess && review.data.alert_id === alert.id && <p className="mt-3 text-sm font-medium text-emerald-700" role="status">Server confirmed status: {review.data.status}.</p>}{review.isError && <p className="mt-3 text-sm text-red-700">{safeErrorMessage(review.error)}</p>}</article> })}</div>)}</div>
+}

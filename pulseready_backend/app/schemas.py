@@ -67,8 +67,33 @@ class AlertReviewResponse(BaseModel):
     reviewed_at: datetime
     audit_entry_hash: str
 
+class SummaryReviewRequest(BaseModel):
+    alert_id: str = Field(min_length=1, max_length=36)
+
+class SummaryReviewResponse(BaseModel):
+    alert_id: str
+    provider: Literal["mock", "adaption"]
+    mode: Literal["mock", "live"]
+    review_status: str
+    approved: bool
+    reviewed_text: str | None
+    issues: list[str]
+
+class AudioBriefingRequest(BaseModel):
+    alert_id: str = Field(min_length=1, max_length=36)
+
 class AuditVerifyResponse(BaseModel):
     valid: bool
     checked_count: int
     first_invalid_event_id: str | None
     failure_reason: str | None
+
+class IntegrationStatusOut(BaseModel):
+    capability: str
+    status: Literal["mock_active", "live_ready", "live_verified", "disabled", "missing_credential", "unsupported_contract", "configuration_error", "error"]
+    mode: Literal["mock", "live"]
+    enabled: bool
+    credential_configured: bool
+    endpoint_configured: bool
+    contract_verified: bool
+    message: str

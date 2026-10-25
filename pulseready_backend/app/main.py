@@ -5,6 +5,7 @@ from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 import pandas as pd
 from fastapi import FastAPI, Depends, File, UploadFile, HTTPException
+from starlette.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.db import Base, engine, get_db
@@ -13,17 +14,29 @@ from app.models import Tenant, Facility, HealthSignal, Alert, ReadinessMetric, S
 from app.schemas import (
     IngestSummary, OverviewOut, ReadinessOut, AlertOut,
     SimulateRequest, SimulateResponse, AlertReviewRequest, AlertReviewResponse,
-    AuditVerifyResponse
+    AuditVerifyResponse, IntegrationStatusOut
 )
 from app.security import current_tenant
-from app.analytics import rolling_baseline_anomalies, calculate_4s_readiness, simulate_capacity
+from app.analytics import rolling_baseline_anomalies, calculate_4s_readiness
 from app.audit import append_audit, verify_audit_chain
+from app.integrations.external_clients import integration_statuses
+from app.simulation.service import run_capacity_simulation
+from app.routers.briefings import router as briefings_router
 
 app = FastAPI(
     title="PulseReady 4S API",
     version="0.1.0",
     description="Synthetic-data operational readiness prototype. Not a clinical or outbreak-prediction system."
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=list(settings.cors_origins),
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "X-API-Key"],
+)
+app.include_router(briefings_router)
 
 @app.on_event("startup")
 def startup():
@@ -39,6 +52,11 @@ def _parse_timestamp(value) -> datetime:
 @app.get("/healthz")
 def healthz():
     return {"status": "ok", "mode": "synthetic-demo"}
+
+@app.get("/api/v1/integrations/status", response_model=list[IntegrationStatusOut])
+def integration_status(tenant: Tenant = Depends(current_tenant)):
+    """Return non-secret integration diagnostics for an authenticated tenant."""
+    return integration_statuses()
 
 @app.post("/api/v1/ingest", response_model=IngestSummary)
 async def ingest(
@@ -216,11 +234,11 @@ def simulate(payload: SimulateRequest, db: Session = Depends(get_db), tenant: Te
     ))
     if facility is None:
         raise HTTPException(404, "Facility not found for this tenant")
-    result = simulate_capacity(
+    result = run_capacity_simulation(
         staffed_beds=facility.staffed_beds, total_beds=facility.total_beds,
         baseline_demand_beds=payload.baseline_demand_beds,
         demand_uplift_pct=payload.demand_uplift_pct, absenteeism_pct=payload.absenteeism_pct
-    )
+    ).model_dump(exclude={"model_version", "seed", "horizon_hours"})
     simulation_id = str(uuid.uuid4())
     row = Simulation(
         id=simulation_id, tenant_id=tenant.id, facility_id=facility.id,

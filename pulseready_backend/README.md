@@ -18,10 +18,21 @@ cp .env.example .env
 export DATABASE_URL='sqlite:///./pulseready.db'
 export PULSEREADY_API_KEYS='{"demo-key-change-me":"11111111-1111-4111-8111-111111111111"}'
 python -m app.seed_demo
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --env-file .env
 ```
 
+The settings read process environment variables. Use Uvicorn's
+`--env-file .env` option (or export the variables through a secret manager) so
+the local file is loaded without placing credentials in source code or logs.
+The checked-in `.env.example` contains placeholders only. Keep
+`INTEGRATION_MODE=mock` and `INTEGRATIONS_ENABLED=false` for rehearsals.
+
 Open `http://127.0.0.1:8000/docs`. Send `X-API-Key: demo-key-change-me` on protected endpoints.
+
+For the local Vite frontend, set `CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173`.
+The API uses an explicit origin allowlist, `GET`/`POST`/`OPTIONS`, and only
+`Content-Type`/`X-API-Key` request headers. Credentials are disabled; CORS does
+not replace API-key authentication.
 
 ## 1a. Run the isolated tests
 
@@ -88,6 +99,13 @@ No frontend application, dashboard source tree, package manifest, or mock-data c
 
 The generated FastAPI `/docs` page is the only current interactive client. Frontend cards, charts, alert workflows, API error/loading states, and live refresh behavior remain unimplemented.
 
+The frozen route contracts and future screen mapping are documented in
+[`docs/API_CONTRACTS.md`](docs/API_CONTRACTS.md). Durable operational records
+survive application restarts through the configured database. The optional
+`app/merkle.py` proof primitives are intentionally in-memory for this demo and
+do not provide restart persistence; the durable audit check is
+`GET /api/v1/audit/verify`.
+
 ## 3b. Frozen backend contract inventory
 
 All protected routes require the existing `X-API-Key` header. The key maps to a tenant through `PULSEREADY_API_KEYS`; every facility, signal, alert, simulation, readiness snapshot, and audit query is scoped to that tenant.
@@ -145,13 +163,33 @@ The seeder prevalidates all six files, inserts accepted rows through `/api/v1/in
 
 `app/fhir.py` builds and locally checks synthetic FHIR R4 `Location`, `Observation`, and `SupplyDelivery` resources. The Observation uses the official R4 heart-rate example semantics (LOINC `8867-4` with UCUM `/min`); SupplyDelivery uses the R4 `device` supply type, a synthetic item code system, a UCUM `{box}` quantity, and a Location destination. Tests cover required fields, resource types, references, code/unit consistency, and invalid payload rejection. This is a focused shape/semantic validator, not full FHIR profile, terminology, or conformance validation; no remote server or validator dependency is required.
 
-## 5c. External adapter boundary
+## 5c. External integration mode and briefing demo
 
-The repository contains no weather, public-health, geospatial, LLM, or other external API adapter. Core ingestion, overview, simulation, review, and audit behavior therefore has no network dependency. No unnecessary live integration was added.
+Optional provider adapters are centrally gated by `INTEGRATION_MODE`, which
+defaults to `mock`, and `INTEGRATIONS_ENABLED`, which defaults to `false`.
+Mock mode never constructs an outbound provider HTTP client. Live mode requires
+both explicit global activation and service-specific allowlisted credentials;
+provider requests are not made during startup or health checks.
+
+The additive authenticated routes are:
+
+- `POST /api/v1/review/summary` — returns a deterministic, explicitly labelled
+  mock result. A real Adaption single-summary review remains unavailable
+  because the installed SDK contract documents dataset adaptation, not this
+  operation.
+- `POST /api/v1/briefings/audio` — requires a persisted `acknowledged` alert
+  review. Mock mode serves `app/assets/demo_briefing.mp3` with `audio/mpeg` and
+  `Cache-Control: no-store`. No valid synthetic MP3 currently exists in the
+  repository, so the route returns `503` until that exact path contains one.
+  Live ElevenLabs generation is not enabled or claimed.
+
+These routes use the existing API-key tenant dependency and append compatible
+audit events without storing summaries or provider credentials. They do not
+alter readiness, simulation, alert-review, or audit-verification semantics.
 
 ## 5d. Security verification scope
 
-Tests cover missing/invalid API keys on protected endpoints, tenant-scoped overview/simulation/review/audit access, malformed and non-finite signal values, stale/future timestamps, unknown facilities, oversized uploads, invalid simulation payloads, audit read-only behavior, and safe isolated seeding. There is no database-level RLS, production key rotation/rate limiting, CORS policy, external audit anchoring, or concurrency serialization; these remain deployment controls rather than verified claims of this demo.
+Tests cover missing/invalid API keys on protected endpoints, tenant-scoped overview/simulation/review/audit access, malformed and non-finite signal values, stale/future timestamps, unknown facilities, oversized uploads, invalid simulation payloads, audit read-only behavior, CORS allowlisting, and safe isolated seeding. There is no database-level RLS, production key rotation/rate limiting, external audit anchoring, or concurrency serialization; these remain deployment controls rather than verified claims of this demo.
 
 ## 6. Suggested H0–H6 build order
 

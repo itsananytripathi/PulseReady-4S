@@ -1,0 +1,9 @@
+{
+  "mapping_id": "pulseready.fhir.patient.synthetic-reference",
+  "version": "1.0.0",
+  "source_resource_type": "Patient",
+  "target_schema": "SyntheticPatientReference",
+  "fields": {
+    "patient_reference": {"path": "id", "prefix": "Patient/"}
+  }
+}

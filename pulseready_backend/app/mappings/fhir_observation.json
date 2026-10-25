@@ -1,0 +1,14 @@
+{
+  "mapping_id": "pulseready.fhir.observation.operational-signal",
+  "version": "1.0.0",
+  "source_resource_type": "Observation",
+  "target_schema": "OperationalSignalRecord",
+  "fields": {
+    "facility_code": {"constant": "A-01"},
+    "signal_type": {"constant": "heart_rate"},
+    "observed_at": {"path": "effectiveDateTime"},
+    "value": {"path": "valueQuantity.value"},
+    "unit": {"path": "valueQuantity.code"},
+    "source": {"constant": "fhir-r4-synthetic"}
+  }
+}
